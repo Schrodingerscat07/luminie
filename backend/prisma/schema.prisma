@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  googleId          String   @unique @map("google_id")
+  email             String   @unique
+  fullName          String   @map("full_name")
+  profilePictureUrl String?  @map("profile_picture_url")
+  isProfessor       Boolean  @default(false) @map("is_professor")
+  isAdmin           Boolean  @default(false) @map("is_admin")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  interests         UserInterest[]
+  createdCourses    Course[]       @relation("CourseCreator")
+  enrollments       Enrollment[]
+  assignmentSubmissions AssignmentSubmission[]
+  courseReviews     CourseReview[]
+  courseComments    CourseComment[]
+
+  @@map("users")
+}
+
+model UserInterest {
+  id      Int    @id @default(autoincrement())
+  userId  Int    @map("user_id")
+  tagName String @map("tag_name")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tagName])
+  @@map("user_interests")
+}
+
+model Course {
+  id                Int      @id @default(autoincrement())
+  title             String
+  description       String
+  departmentOrClub  String   @map("department_or_club")
+  creatorId         Int      @map("creator_id")
+  isProfessorCourse Boolean  @default(false) @map("is_professor_course")
+  averageRating     Decimal  @default(0) @map("average_rating") @db.Decimal(3, 2)
+  totalRatings      Int      @default(0) @map("total_ratings")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  creator     User            @relation("CourseCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  tags        CourseTag[]
+  modules     Module[]
+  enrollments Enrollment[]
+  reviews     CourseReview[]
+  comments    CourseComment[]
+
+  @@map("courses")
+}
+
+model CourseTag {
+  id       Int    @id @default(autoincrement())
+  courseId Int    @map("course_id")
+  tagName  String @map("tag_name")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, tagName])
+  @@map("course_tags")
+}
+
+model Module {
+  id        Int     @id @default(autoincrement())
+  courseId  Int     @map("course_id")
+  title     String
+  orderIndex Int     @map("order_index")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lectures    Lecture[]
+  assignments Assignment[]
+
+  @@map("modules")
+}
+
+model Lecture {
+  id                    Int     @id @default(autoincrement())
+  moduleId              Int     @map("module_id")
+  title                 String
+  videoUrl              String? @map("video_url")
+  readingMaterialsUrl   String? @map("reading_materials_url")
+  orderIndex            Int     @map("order_index")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  // Relations
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@map("lectures")
+}
+
+model Assignment {
+  id         Int     @id @default(autoincrement())
+  moduleId   Int     @map("module_id")
+  title      String
+  dueDays    Int     @map("due_days")
+  weight     Int
+  orderIndex Int     @map("order_index")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  module     Module                @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions  AssignmentQuestion[]
+  submissions AssignmentSubmission[]
+
+  @@map("assignments")
+}
+
+model AssignmentQuestion {
+  id            Int     @id @default(autoincrement())
+  assignmentId  Int     @map("assignment_id")
+  questionText  String  @map("question_text")
+  optionA       String  @map("option_a")
+  optionB       String  @map("option_b")
+  optionC       String  @map("option_c")
+  optionD       String  @map("option_d")
+  correctOption String  @map("correct_option")
+  orderIndex    Int     @map("order_index")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relations
+  assignment Assignment        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  answers   StudentAnswer[]
+
+  @@map("assignment_questions")
+}
+
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  studentId  Int      @map("student_id")
+  courseId   Int      @map("course_id")
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+  finalGrade Decimal? @map("final_grade") @db.Decimal(5, 2)
+
+  // Relations
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@map("enrollments")
+}
+
+model AssignmentSubmission {
+  id           Int      @id @default(autoincrement())
+  studentId    Int      @map("student_id")
+  assignmentId Int      @map("assignment_id")
+  submittedAt  DateTime @default(now()) @map("submitted_at")
+  score        Decimal  @default(0) @db.Decimal(5, 2)
+
+  // Relations
+  student    User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  assignment Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  answers    StudentAnswer[]
+
+  @@unique([studentId, assignmentId])
+  @@map("assignment_submissions")
+}
+
+model StudentAnswer {
+  id            Int     @id @default(autoincrement())
+  submissionId  Int     @map("submission_id")
+  questionId    Int     @map("question_id")
+  selectedOption String  @map("selected_option")
+  isCorrect     Boolean @map("is_correct")
+
+  // Relations
+  submission AssignmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question   AssignmentQuestion  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, questionId])
+  @@map("student_answers")
+}
+
+model CourseReview {
+  id        Int      @id @default(autoincrement())
+  studentId Int      @map("student_id")
+  courseId  Int      @map("course_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@map("course_reviews")
+}
+
+model CourseComment {
+  id               Int      @id @default(autoincrement())
+  studentId        Int      @map("student_id")
+  courseId         Int      @map("course_id")
+  commentText      String   @map("comment_text")
+  parentCommentId  Int?     @map("parent_comment_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  student        User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course         Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  parentComment  CourseComment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies        CourseComment[] @relation("CommentReplies")
+
+  @@map("course_comments")
+}
+
+model PredefinedTag {
+  id       Int    @id @default(autoincrement())
+  tagName  String @unique @map("tag_name")
+  category String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("predefined_tags")
+}
