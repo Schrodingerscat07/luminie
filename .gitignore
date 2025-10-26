@@ -42,3 +42,4 @@ backend/prisma/migrations/
 *.temp
 
 node_modules
+node_modules
