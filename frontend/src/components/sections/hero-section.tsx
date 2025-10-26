@@ -6,16 +6,16 @@ import { ArrowRight, BookOpen, Users, Award } from 'lucide-react'
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Animated background */}
-      <div className="absolute inset-0 liquid-bg opacity-20" />
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-indigo-50/50 to-purple-50/50" />
+      <div className="absolute inset-0 liquid-bg opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-purple-900/20 to-slate-900/90" />
       
-      {/* Floating elements */}
-      <div className="absolute top-20 left-10 w-20 h-20 bg-primary-200/30 rounded-full float-animation" />
-      <div className="absolute top-40 right-20 w-16 h-16 bg-secondary-200/30 rounded-full float-animation" />
-      <div className="absolute bottom-40 left-20 w-24 h-24 bg-accent-200/30 rounded-full float-animation" />
-      <div className="absolute bottom-20 right-10 w-12 h-12 bg-primary-300/30 rounded-full float-animation" />
+      {/* Floating elements - vibrant colors */}
+      <div className="absolute top-20 left-10 w-20 h-20 bg-cyan-500/30 rounded-full float-animation blur-xl" />
+      <div className="absolute top-40 right-20 w-16 h-16 bg-purple-500/30 rounded-full float-animation blur-xl" />
+      <div className="absolute bottom-40 left-20 w-24 h-24 bg-pink-500/30 rounded-full float-animation blur-xl" />
+      <div className="absolute bottom-20 right-10 w-12 h-12 bg-cyan-400/30 rounded-full float-animation blur-xl" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
@@ -24,12 +24,12 @@ export function HeroSection() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-5xl md:text-7xl font-bold font-display mb-6">
-            <span className="bg-gradient-to-r from-primary-600 via-secondary-600 to-accent-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               CollegeCoursera
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             Learn, Create, and Excel with our dynamic platform designed for college students and professors. 
             Experience fluid UI, auto-grading, and intelligent recommendations.
           </p>
@@ -51,28 +51,28 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto"
           >
-            <div className="text-center">
-              <div className="flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-primary-600" />
+            <div className="text-center bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 rounded-xl border border-purple-500/20">
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">100+</h3>
-              <p className="text-gray-600">Courses Available</p>
+              <h3 className="text-2xl font-bold text-white mb-2">100+</h3>
+              <p className="text-gray-400">Courses Available</p>
             </div>
             
-            <div className="text-center">
-              <div className="flex items-center justify-center w-16 h-16 bg-secondary-100 rounded-full mx-auto mb-4">
-                <Users className="w-8 h-8 text-secondary-600" />
+            <div className="text-center bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 rounded-xl border border-purple-500/20">
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mx-auto mb-4">
+                <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">500+</h3>
-              <p className="text-gray-600">Active Students</p>
+              <h3 className="text-2xl font-bold text-white mb-2">500+</h3>
+              <p className="text-gray-400">Active Students</p>
             </div>
             
-            <div className="text-center">
-              <div className="flex items-center justify-center w-16 h-16 bg-accent-100 rounded-full mx-auto mb-4">
-                <Award className="w-8 h-8 text-accent-600" />
+            <div className="text-center bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 rounded-xl border border-purple-500/20">
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full mx-auto mb-4">
+                <Award className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">4.8</h3>
-              <p className="text-gray-600">Average Rating</p>
+              <h3 className="text-2xl font-bold text-white mb-2">4.8</h3>
+              <p className="text-gray-400">Average Rating</p>
             </div>
           </motion.div>
         </motion.div>

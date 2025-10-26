@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
+import { Navigation } from '@/components/navigation'
 import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ 
@@ -30,18 +31,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50`}>
+      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900`}>
         <Providers>
+          <Navigation />
           {children}
           <Toaster 
             position="top-right"
             toastOptions={{
               duration: 4000,
               style: {
-                background: 'rgba(255, 255, 255, 0.1)',
+                background: 'rgba(15, 23, 42, 0.9)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: '#1f2937',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                color: '#ffffff',
               },
             }}
           />
