@@ -1,3 +1,7 @@
+# Repository layout:
+#  - frontend/: Next.js (React) app — pages/components, .next build, env files
+#  - backend/: Node.js API — likely Express/Nest with Prisma for DB migrations
+
 # Dependencies
 node_modules/
 backend/node_modules/

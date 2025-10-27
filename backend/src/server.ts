@@ -6,6 +6,10 @@ import compression from 'compression'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import { PrismaClient } from '@prisma/client'
+import courseRoutes from './routes/courses'
+import userRoutes from './routes/users'
+import { moduleController } from './controllers/moduleController'
+import { assignmentController } from './controllers/assignmentController'
 
 // Load environment variables
 dotenv.config()
@@ -59,29 +63,35 @@ app.get('/api', (req, res) => {
   })
 })
 
-// Placeholder routes
-app.get('/api/courses', (req, res) => {
-  res.json({
-    success: true,
-    data: [],
-    message: 'Courses endpoint - to be implemented'
-  })
-})
+// API Routes
+app.use('/api/courses', courseRoutes)
+app.use('/api/users', userRoutes)
 
-app.get('/api/users', (req, res) => {
-  res.json({
-    success: true,
-    data: [],
-    message: 'Users endpoint - to be implemented'
-  })
-})
+// Module routes
+app.post('/api/modules', moduleController.createModule)
+app.put('/api/modules/:id', moduleController.updateModule)
+app.delete('/api/modules/:id', moduleController.deleteModule)
+app.post('/api/modules/:id/lectures', moduleController.createLecture)
+app.put('/api/modules/:id/lectures/:lectureId', moduleController.updateLecture)
+app.delete('/api/modules/:id/lectures/:lectureId', moduleController.deleteLecture)
 
-app.get('/api/auth', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Auth endpoint - to be implemented'
-  })
-})
+// Assignment routes (module-level assignments)
+app.post('/api/modules/:id/assignments', moduleController.createAssignment)
+app.put('/api/modules/:id/assignments/:assignmentId', moduleController.updateAssignment)
+app.delete('/api/modules/:id/assignments/:assignmentId', moduleController.deleteAssignment)
+
+// Assignment questions
+app.post('/api/assignments/:assignmentId/questions', moduleController.createQuestion)
+app.put('/api/assignments/:assignmentId/questions/:questionId', moduleController.updateQuestion)
+app.delete('/api/assignments/:assignmentId/questions/:questionId', moduleController.deleteQuestion)
+
+// Assignment submission
+app.post('/api/assignments/:id/submit', assignmentController.submitAssignment)
+app.get('/api/assignments/:id/submission', assignmentController.getSubmission)
+app.get('/api/assignments/:id/results', assignmentController.getAssignmentResults)
+app.get('/api/my-assignments', assignmentController.getMyAssignments)
+app.get('/api/upcoming-assignments', assignmentController.getUpcomingAssignments)
+app.get('/api/submitted-assignments', assignmentController.getSubmittedAssignments)
 
 // 404 handler
 app.use('*', (req, res) => {

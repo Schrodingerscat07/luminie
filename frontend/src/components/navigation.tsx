@@ -3,12 +3,14 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Home, BookOpen, Users, Star, Award } from 'lucide-react'
+import { Menu, X, Home, BookOpen, Users, Star, Award, Plus, User } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/courses', label: 'Courses', icon: BookOpen },
+  { href: '/create-course', label: 'Create', icon: Plus },
+  { href: '/profile', label: 'Profile', icon: User },
   { href: '/features', label: 'Features', icon: Star },
   { href: '/about', label: 'About', icon: Users },
 ]

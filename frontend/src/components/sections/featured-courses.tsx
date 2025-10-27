@@ -1,52 +1,73 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Star, Clock, Users, BookOpen } from 'lucide-react'
+import { Star, Clock, Users, BookOpen, Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
-// Mock data - in real app, this would come from API
-const featuredCourses = [
-  {
-    id: 1,
-    title: 'Introduction to Machine Learning',
-    description: 'Learn the fundamentals of machine learning with Python and scikit-learn.',
-    instructor: 'Dr. Sarah Johnson',
-    rating: 4.8,
-    students: 1250,
-    duration: '8 weeks',
-    price: 'Free',
-    image: '/api/placeholder/400/250',
-    tags: ['Machine Learning', 'Python', 'Data Science'],
-    isProfessorCourse: true
-  },
-  {
-    id: 2,
-    title: 'Web Development Bootcamp',
-    description: 'Master modern web development with React, Node.js, and MongoDB.',
-    instructor: 'Prof. Michael Chen',
-    rating: 4.9,
-    students: 2100,
-    duration: '12 weeks',
-    price: 'Free',
-    image: '/api/placeholder/400/250',
-    tags: ['Web Development', 'React', 'Node.js'],
-    isProfessorCourse: true
-  },
-  {
-    id: 3,
-    title: 'Data Structures & Algorithms',
-    description: 'Comprehensive guide to data structures and algorithms for coding interviews.',
-    instructor: 'Dr. Emily Rodriguez',
-    rating: 4.7,
-    students: 1800,
-    duration: '10 weeks',
-    price: 'Free',
-    image: '/api/placeholder/400/250',
-    tags: ['Algorithms', 'Programming', 'Interview Prep'],
-    isProfessorCourse: true
+interface Course {
+  id: number
+  title: string
+  description: string
+  departmentOrClub: string
+  creatorId: number
+  isProfessorCourse: boolean
+  averageRating: number
+  totalRatings: number
+  createdAt: string
+  updatedAt: string
+  creator?: {
+    id: number
+    fullName: string
+    profilePictureUrl?: string
+    isProfessor: boolean
   }
-]
+  tags?: Array<{ tagName: string }>
+  _count?: {
+    enrollments: number
+    reviews: number
+  }
+}
 
 export function FeaturedCourses() {
+  const [courses, setCourses] = useState<Course[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/courses?limit=9')
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses')
+        }
+        const data = await response.json()
+        setCourses(data.data || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch courses')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourses()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+      </div>
+    )
+  }
+
+  if (error || courses.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-gray-400">No courses available yet.</p>
+      </div>
+    )
+  }
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -68,7 +89,7 @@ export function FeaturedCourses() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredCourses.map((course, index) => (
+          {courses.map((course, index) => (
             <motion.div
               key={course.id}
               initial={{ opacity: 0, y: 30 }}
@@ -108,7 +129,11 @@ export function FeaturedCourses() {
                   </p>
 
                   <div className="flex items-center text-sm text-gray-500 mb-4">
-                    <span className="font-medium">by {course.instructor}</span>
+                    <span className="font-medium">by {course.creator?.fullName || 'Unknown'}</span>
+                  </div>
+
+                  <div className="text-sm text-gray-500 mb-4">
+                    <span className="font-medium">{course.departmentOrClub}</span>
                   </div>
 
                   {/* Course Stats */}
@@ -116,43 +141,44 @@ export function FeaturedCourses() {
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                        <span className="font-medium">{course.rating}</span>
+                        <span className="font-medium">{parseFloat(course.averageRating.toString()).toFixed(1)}</span>
+                        <span className="text-gray-400 ml-1">({course.totalRatings})</span>
                       </div>
                       <div className="flex items-center">
                         <Users className="w-4 h-4 text-blue-500 mr-1" />
-                        <span>{course.students.toLocaleString()}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 text-green-500 mr-1" />
-                        <span>{course.duration}</span>
+                        <span>{course._count?.enrollments || 0}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {course.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {course.tags && course.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {course.tags.slice(0, 3).map((tagItem, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium"
+                        >
+                          {tagItem.tagName}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
-                  {/* Price and Enroll Button */}
+                  {/* Enroll Button */}
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-green-600">
-                      {course.price}
+                    <span className="text-lg font-bold text-green-600">
+                      Free
                     </span>
-                    <motion.button
-                      className="px-6 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-medium hover:from-primary-600 hover:to-primary-700 transition-all duration-300"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Enroll Now
-                    </motion.button>
+                    <Link href={`/courses/${course.id}`}>
+                      <motion.button
+                        className="px-6 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-medium hover:from-primary-600 hover:to-primary-700 transition-all duration-300"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        View Course
+                      </motion.button>
+                    </Link>
                   </div>
                 </div>
               </div>

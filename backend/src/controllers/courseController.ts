@@ -266,15 +266,8 @@ export const courseController = {
 
   async createCourse(req: Request, res: Response) {
     try {
-      const userId = (req as any).user?.userId
+      const userId = (req as any).user?.userId || 1 // Default to user ID 1 for development
       const { title, description, departmentOrClub, tags } = req.body
-
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: 'Unauthorized'
-        })
-      }
 
       if (!title || !description || !departmentOrClub) {
         return res.status(400).json({
@@ -283,17 +276,12 @@ export const courseController = {
         })
       }
 
-      // Get user to check if they're a professor
+      // Get user to check if they're a professor (or use default)
       const user = await prisma.user.findUnique({
         where: { id: userId }
       })
 
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        })
-      }
+      const isProfessorCourse = user?.isProfessor || false
 
       const course = await prisma.course.create({
         data: {
@@ -301,7 +289,7 @@ export const courseController = {
           description,
           departmentOrClub,
           creatorId: userId,
-          isProfessorCourse: user.isProfessor,
+          isProfessorCourse,
           tags: {
             create: tags?.map((tagName: string) => ({
               tagName
@@ -321,13 +309,13 @@ export const courseController = {
         }
       })
 
-        return res.status(500).json({
+      return res.status(201).json({
         success: true,
         data: course
       })
     } catch (error) {
       console.error('Create course error:', error)
-        return res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Internal server error'
       })
@@ -413,15 +401,8 @@ export const courseController = {
 
   async deleteCourse(req: Request, res: Response) {
     try {
-      const userId = (req as any).user?.userId
+      const userId = (req as any).user?.userId || 1 // Default to user ID 1 for development
       const { id } = req.params
-
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: 'Unauthorized'
-        })
-      }
 
       // Check if user owns the course or is admin
       const user = await prisma.user.findUnique({
@@ -436,7 +417,7 @@ export const courseController = {
       })
 
       if (!existingCourse) {
-        return res.status(500).json({
+        return res.status(404).json({
           success: false,
           message: 'Course not found or you do not have permission to delete it'
         })

@@ -11,11 +11,11 @@ router.get('/search', courseController.searchCourses)
 router.get('/:id', courseController.getCourseById)
 router.get('/:id/modules', courseController.getCourseModules)
 
-// Protected routes
-router.use(authMiddleware as any)
-
-// Course management
+// Course management (temporarily without auth for development)
 router.post('/', courseController.createCourse)
+
+// Protected routes (commented out for development)
+// router.use(authMiddleware as any)
 router.put('/:id', courseController.updateCourse)
 router.delete('/:id', courseController.deleteCourse)
 
